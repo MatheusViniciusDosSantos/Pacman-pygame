@@ -1,6 +1,6 @@
 from constantes import *
 
-class Fase0():
+class Fase2():
 
     def get_matriz(self):
         return [

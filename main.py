@@ -6,6 +6,11 @@ from fantasma import Fantasma
 from parede import Parede
 from trilha import Trilha
 from fase import Fase
+from fases.fase_1 import Fase1
+from fases.fase_2 import Fase2
+from fases.fase_3 import Fase3
+from fases.fase_4 import Fase4
+
 
 class App:
     def __init__(self):
@@ -33,6 +38,7 @@ class App:
         self._display_game = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         pygame.display.set_caption("PacMan")
         self._running = True
+        self.fase_1.populaObjetosMatriz(matriz=Fase1.get_matriz())
 
     def on_event(self, event):
         if event.type == pygame.KEYDOWN:
