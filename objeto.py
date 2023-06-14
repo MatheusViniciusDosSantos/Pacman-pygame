@@ -10,7 +10,7 @@ class Objeto(Fisica, pygame.sprite.Sprite):
         self.tipo: int
         self.posicao_x: float
         self.posicao_y: float
-        self.tamanho: float = 35.0
+        self.tamanho: float = 50.0
         self.velocidade_x: float = 0.0
         self.velocidade_y: float = 0.0
         self.foto: Surface
@@ -46,9 +46,9 @@ class Objeto(Fisica, pygame.sprite.Sprite):
         mode, size, data = pilImage.mode, pilImage.size, pilImage.tobytes()
         return pygame.image.fromstring(data, size, mode).convert_alpha()
 
-    def definirPosicoes(self):
-        self.posicao_x += self.velocidade_x
-        self.posicao_y += self.velocidade_y
+    def definirPosicoes(self, tempo):
+        self.posicao_x += (self.velocidade_x * tempo)
+        self.posicao_y += (self.velocidade_y * tempo)
     
     def imprimirObj(self, display_game):
-        display_game.blit(self.foto, (self.posicao_x, self.posicao_y))
+        display_game.blit(self.foto, (self.posicao_x-25, self.posicao_y-25))
