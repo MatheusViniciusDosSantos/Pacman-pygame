@@ -145,6 +145,14 @@ class App():
             self.pacman.velocidade_x = 0
     
     def validar_posicoes (self):
+        # celula_x =  posicao_x / tamanho_celula
+        # celula_y =  posicao_y / tamanho_celula
+        # posicao_interna_x = posicao_x % tamanho_celula
+        # se (posicao_interna_x < (tamanh_celula / 2))   -> pacman esta mais a esquerda
+        #     se matriz[celula_y][celula_x - 1] == Parede
+        #         parar o Pacman
+        #         teletransportar o pacman para a posicao_x no meio
+        # se (posicao_interna_x > (tamanh_celula / 2))   -> pacman esta mais a direita
         pass
     
     def calculos_fisica(self):
