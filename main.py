@@ -1,6 +1,7 @@
 import os
 import pygame
 
+from enum import Enum
 from pygame.locals import *
 from pacman import Pacman
 from fantasma import Fantasma
@@ -13,6 +14,13 @@ from fases.fase_2 import Fase2
 from fases.fase_3 import Fase3
 from fases.fase_4 import Fase4
 
+class direcao(Enum):
+    CIMA = 1
+    BAIXO = 2
+    ESQUERDA = 3
+    DIREITA = 4
+    NENHUMA = 5
+    
 
 class App():
     def __init__(self):
@@ -20,6 +28,13 @@ class App():
         self.largura = 800
         self.altura = 800
         self.tamanho_bloco_trilha = self.largura/16
+        
+        self.velocidade_base = self.tamanho_bloco_trilha*4
+        self.fps = 100
+        self.tempo_frame = 1.0/self.fps
+        
+        self.limiar = (self.tempo_frame * self.velocidade_base) * 1.002
+        
         self._tela_do_jogo = pygame.display.set_mode((self.largura, self.altura), pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._tela_do_jogo.fill((255, 255, 255))
         pygame.display.set_caption("PacMan")
@@ -27,6 +42,8 @@ class App():
         self._rodando_jogo = True
         self.color = (255,255,255)
         self.rect_color = (255,0,0)
+        
+        self.proxima_direcao: direcao = direcao.NENHUMA
         
         self.pacman = Pacman()
         self.vermelho = Fantasma()
@@ -128,39 +145,89 @@ class App():
             self._rodando_jogo = False
     
     def click_botoes(self, event):
+        
         if event.key == pygame.K_LEFT:
-            self.pacman.velocidade_x = -self.tamanho_bloco_trilha/25
-            self.pacman.velocidade_y = 0
+            self.proxima_direcao = direcao.ESQUERDA
+            
             
         elif event.key == pygame.K_RIGHT:
-            self.pacman.velocidade_x = self.tamanho_bloco_trilha/25
-            self.pacman.velocidade_y = 0
+            self.proxima_direcao = direcao.DIREITA
+            
 
         elif event.key == pygame.K_DOWN:
-            self.pacman.velocidade_y = self.tamanho_bloco_trilha/25
-            self.pacman.velocidade_x = 0
+            self.proxima_direcao = direcao.BAIXO
+            
             
         elif event.key == pygame.K_UP:
-            self.pacman.velocidade_y = -self.tamanho_bloco_trilha/25
-            self.pacman.velocidade_x = 0
+            self.proxima_direcao = direcao.CIMA
+            
     
-    def validar_posicoes (self):
-        # celula_x =  posicao_x / tamanho_celula
-        # celula_y =  posicao_y / tamanho_celula
-        # posicao_interna_x = posicao_x % tamanho_celula
-        # se (posicao_interna_x < (tamanh_celula / 2))   -> pacman esta mais a esquerda
-        #     se matriz[celula_y][celula_x - 1] == Parede
-        #         parar o Pacman
-        #         teletransportar o pacman para a posicao_x no meio
-        # se (posicao_interna_x > (tamanh_celula / 2))   -> pacman esta mais a direita
-        pass
+    def validar_posicoes (self, obj):
+        celula_x = int(obj.posicao_x / self.tamanho_bloco_trilha)
+        celula_y = int(obj.posicao_y / self.tamanho_bloco_trilha)
+        posicao_interna_x = obj.posicao_x % self.tamanho_bloco_trilha
+        posicao_interna_y = obj.posicao_y % self.tamanho_bloco_trilha
+        if (posicao_interna_x < (self.tamanho_bloco_trilha / 2)):
+            if self.matriz[celula_y][celula_x - 1] == PAREDE:
+                obj.velocidade_x = 0
+                obj.posicao_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+                
+        if (posicao_interna_x > (self.tamanho_bloco_trilha / 2)):
+            if self.matriz[celula_y][celula_x + 1] == PAREDE:
+                obj.velocidade_x = 0
+                obj.posicao_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+        
+        if (posicao_interna_y < (self.tamanho_bloco_trilha / 2)):
+            if self.matriz[celula_y - 1][celula_x] == PAREDE:
+                obj.velocidade_y = 0
+                obj.posicao_y = (celula_y + 0.5) * self.tamanho_bloco_trilha
+                
+        if (posicao_interna_y > (self.tamanho_bloco_trilha / 2)):
+            if self.matriz[celula_y + 1][celula_x] == PAREDE:
+                obj.velocidade_y = 0
+                obj.posicao_y = (celula_y + 0.5) * self.tamanho_bloco_trilha
     
     def calculos_fisica(self):
-        dt = pygame.time.Clock().tick(100)/10.0
+        dt = pygame.time.Clock().tick(self.fps)/1000
         for obj in self.lista_obj:
             obj.definirPosicoes(dt)
-        self.validar_posicoes()
+            self.mudar_posicao_pacman()
+            self.validar_posicoes(obj)
 
+    def mudar_posicao_pacman(self):
+        celula_x = int(self.pacman.posicao_x / self.tamanho_bloco_trilha)
+        meio_celula_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+        meio_maior_bloco_x = meio_celula_x + self.limiar
+        meio_menor_bloco_x = meio_celula_x - self.limiar
+        
+        celula_y = int(self.pacman.posicao_y / self.tamanho_bloco_trilha)
+        meio_celula_y = (celula_y + 0.5) * self.tamanho_bloco_trilha
+        meio_maior_bloco_y = meio_celula_y + self.limiar
+        meio_menor_bloco_y = meio_celula_y - self.limiar
+        
+        if (self.proxima_direcao == direcao.CIMA and (
+            meio_maior_bloco_x > self.pacman.posicao_x > meio_menor_bloco_x
+            )):
+            self.pacman.posicao_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+            self.pacman.velocidade_y = -self.velocidade_base
+            self.pacman.velocidade_x = 0
+            
+        elif (self.proxima_direcao == direcao.BAIXO and (
+            meio_maior_bloco_x > self.pacman.posicao_x > meio_menor_bloco_x
+            )):
+            self.pacman.velocidade_y = self.velocidade_base
+            self.pacman.velocidade_x = 0
+            
+        elif (self.proxima_direcao == direcao.ESQUERDA and (
+            meio_maior_bloco_y > self.pacman.posicao_y > meio_menor_bloco_y
+            )):
+            self.pacman.velocidade_x = -self.velocidade_base
+            self.pacman.velocidade_y = 0
+        elif (self.proxima_direcao == direcao.DIREITA and (
+            meio_maior_bloco_y > self.pacman.posicao_y > meio_menor_bloco_y
+            )):
+            self.pacman.velocidade_x = self.velocidade_base
+            self.pacman.velocidade_y = 0
 
     def renderizar(self):
         self._tela_do_jogo.fill((0, 0, 0))
@@ -198,6 +265,8 @@ class App():
 
     def ao_finalizar(self):
         pygame.quit()
+        
+    
 
  
 if __name__ == "__main__" :
