@@ -207,25 +207,25 @@ class App():
         
         if (self.proxima_direcao == direcao.CIMA and (
             meio_maior_bloco_x > self.pacman.posicao_x > meio_menor_bloco_x
-            )):
+            ) and self.matriz[celula_y - 1][celula_x] != PAREDE):
             self.pacman.posicao_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
             self.pacman.velocidade_y = -self.velocidade_base
             self.pacman.velocidade_x = 0
             
         elif (self.proxima_direcao == direcao.BAIXO and (
             meio_maior_bloco_x > self.pacman.posicao_x > meio_menor_bloco_x
-            )):
+            ) and self.matriz[celula_y + 1][celula_x] != PAREDE):
             self.pacman.velocidade_y = self.velocidade_base
             self.pacman.velocidade_x = 0
             
         elif (self.proxima_direcao == direcao.ESQUERDA and (
             meio_maior_bloco_y > self.pacman.posicao_y > meio_menor_bloco_y
-            )):
+            ) and self.matriz[celula_y][celula_x - 1] != PAREDE):
             self.pacman.velocidade_x = -self.velocidade_base
             self.pacman.velocidade_y = 0
         elif (self.proxima_direcao == direcao.DIREITA and (
             meio_maior_bloco_y > self.pacman.posicao_y > meio_menor_bloco_y
-            )):
+            ) and self.matriz[celula_y][celula_x + 1] != PAREDE):
             self.pacman.velocidade_x = self.velocidade_base
             self.pacman.velocidade_y = 0
 
