@@ -92,6 +92,7 @@ class App():
                 if(self.matriz[i][j] == 1):
                     self.pacman.posicao_x = j*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
                     self.pacman.posicao_y = i*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+                    
                     self.matriz[i][j] = TRILHA
                     
                     self.adicionar_obj(self.pacman)
@@ -110,23 +111,23 @@ class App():
     
     def verifica_carregou_posicao_fantasma(self, x, y, contador_fantasma):
         if(contador_fantasma == 0):
-            self.azul.posicao_x = x
-            self.azul.posicao_y = y
+            self.azul.posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.azul.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.azul)
 
         elif(contador_fantasma == 1):
-            self.laranja.posicao_x = x 
-            self.laranja.posicao_y = y
+            self.laranja.posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.laranja.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.laranja)
 
         elif(contador_fantasma == 2):
-            self.vermelho.posicao_x = x 
-            self.vermelho.posicao_y = y
+            self.vermelho.posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.vermelho.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.vermelho)
 
         elif(contador_fantasma == 3):
-            self.rosa.posicao_x = x 
-            self.rosa.posicao_y = y
+            self.rosa.posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.rosa.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.rosa)
     
     def no_evento(self, event):
