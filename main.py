@@ -1,5 +1,7 @@
 import os
 import pygame
+import random
+import time
 
 from enum import Enum
 from pygame.locals import *
@@ -13,6 +15,7 @@ from fases.fase_1 import Fase1
 from fases.fase_2 import Fase2
 from fases.fase_3 import Fase3
 from fases.fase_4 import Fase4
+from constantes import FANTASMA, FANTASMA_ROSA, FANTASMA_AZUL, FANTASMA_LARANJA, FANTASMA_VERMELHO, PAREDE
 
 class direcao(Enum):
     CIMA = 1
@@ -35,6 +38,11 @@ class App():
         
         self.limiar = (self.tempo_frame * self.velocidade_base) * 1.002
         
+        self.tempo_espera_fantasma_vermelho = 10
+        self.tempo_espera_fantasma_laranja = 10
+        self.tempo_espera_fantasma_azul = 10
+        self.tempo_espera_fantasma_rosa = 10
+
         self._tela_do_jogo = pygame.display.set_mode((self.largura, self.altura), pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._tela_do_jogo.fill((255, 255, 255))
         pygame.display.set_caption("PacMan")
@@ -46,10 +54,20 @@ class App():
         self.proxima_direcao: direcao = direcao.NENHUMA
         
         self.pacman = Pacman()
+        self.pacman.carregar_imagem('pacman-gif.gif', self.pacman.tamanho)
         self.vermelho = Fantasma()
+        self.vermelho.carregar_imagem('vermelho.png', self.vermelho.tamanho)
+        self.vermelho.cor = FANTASMA_VERMELHO
         self.azul = Fantasma()
+        self.azul.carregar_imagem('azul.png', self.azul.tamanho)
+        self.azul.cor = FANTASMA_AZUL
         self.rosa = Fantasma()
+        self.rosa.carregar_imagem('rosa.png', self.rosa.tamanho)
+        self.rosa.cor = FANTASMA_ROSA
         self.laranja = Fantasma()
+        self.laranja.carregar_imagem('laranja.png', self.laranja.tamanho)
+        self.laranja.cor = FANTASMA_LARANJA
+
         self.paredes = []
         self.trilha = []
         self.lista_obj = []
@@ -193,7 +211,43 @@ class App():
         for obj in self.lista_obj:
             obj.definirPosicoes(dt)
             self.mudar_posicao_pacman()
+            self.validar_obj_mudar_posica_fantasma(obj=obj)
             self.validar_posicoes(obj)
+
+    def validar_obj_mudar_posica_fantasma(self, obj):
+        if (obj.tipo == FANTASMA):
+            self.gerar_novo_valor_aleatorio(fantasma=obj)
+
+    #TODO - BUG
+    def gerar_novo_valor_aleatorio(self, fantasma):
+        posicao = random.randint(1, 4)
+        # print(fantasma.cor)
+        print()
+        if (self.tempo_espera_fantasma_vermelho == 0 and fantasma.cor == FANTASMA_VERMELHO):
+            self.mudar_posicao_fantasma(fantasma, direcao(posicao))
+            self.tempo_espera_fantasma_vermelho = 10
+        elif(self.tempo_espera_fantasma_vermelho == 0) :
+            print(self.tempo_espera_fantasma_vermelho)
+            self.tempo_espera_fantasma_vermelho -= 1
+
+        elif (self.tempo_espera_fantasma_laranja == 0 and fantasma.cor == FANTASMA_LARANJA):
+            self.mudar_posicao_fantasma(fantasma, direcao(posicao))
+            self.tempo_espera_fantasma_laranja = 10
+        elif(self.tempo_espera_fantasma_laranja == 0) :
+            self.tempo_espera_fantasma_laranja -= 1
+        
+        elif (self.tempo_espera_fantasma_azul == 0 and fantasma.cor == FANTASMA_AZUL):
+            self.mudar_posicao_fantasma(fantasma, direcao(posicao))
+            self.tempo_espera_fantasma_azul = 10
+        elif(self.tempo_espera_fantasma_azul == 0) :
+            self.tempo_espera_fantasma_azul -= 1
+
+        elif (self.tempo_espera_fantasma_rosa == 0 and fantasma.cor == FANTASMA_ROSA):
+            self.mudar_posicao_fantasma(fantasma, direcao(posicao))
+            self.tempo_espera_fantasma_rosa = 10
+        elif(self.tempo_espera_fantasma_rosa) :
+            self.tempo_espera_fantasma_rosa -= 1
+
 
     def mudar_posicao_pacman(self):
         celula_x = int(self.pacman.posicao_x / self.tamanho_bloco_trilha)
@@ -229,6 +283,43 @@ class App():
             ) and self.matriz[celula_y][celula_x + 1] != PAREDE):
             self.pacman.velocidade_x = self.velocidade_base
             self.pacman.velocidade_y = 0
+
+    def mudar_posicao_fantasma(self, fantasma, proxima_direcao):
+        celula_x = int(fantasma.posicao_x / self.tamanho_bloco_trilha)
+        meio_celula_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+        meio_maior_bloco_x = meio_celula_x + self.limiar
+        meio_menor_bloco_x = meio_celula_x - self.limiar
+        print(fantasma)
+        print(proxima_direcao)
+        
+        celula_y = int(fantasma.posicao_y / self.tamanho_bloco_trilha)
+        meio_celula_y = (celula_y + 0.5) * self.tamanho_bloco_trilha
+        meio_maior_bloco_y = meio_celula_y + self.limiar
+        meio_menor_bloco_y = meio_celula_y - self.limiar
+        
+        if (proxima_direcao == direcao.CIMA and (
+            meio_maior_bloco_x > fantasma.posicao_x > meio_menor_bloco_x
+            ) and self.matriz[celula_y - 1][celula_x] != PAREDE):
+            fantasma.posicao_x = (celula_x + 0.5) * self.tamanho_bloco_trilha
+            fantasma.velocidade_y = -self.velocidade_base
+            fantasma.velocidade_x = 0
+            
+        elif (proxima_direcao == direcao.BAIXO and (
+            meio_maior_bloco_x > fantasma.posicao_x > meio_menor_bloco_x
+            ) and self.matriz[celula_y + 1][celula_x] != PAREDE):
+            fantasma.velocidade_y = self.velocidade_base
+            fantasma.velocidade_x = 0
+            
+        elif (proxima_direcao == direcao.ESQUERDA and (
+            meio_maior_bloco_y > fantasma.posicao_y > meio_menor_bloco_y
+            ) and self.matriz[celula_y][celula_x - 1] != PAREDE):
+            fantasma.velocidade_x = -self.velocidade_base
+            fantasma.velocidade_y = 0
+        elif (proxima_direcao == direcao.DIREITA and (
+            meio_maior_bloco_y > fantasma.posicao_y > meio_menor_bloco_y
+            ) and self.matriz[celula_y][celula_x + 1] != PAREDE):
+            fantasma.velocidade_x = self.velocidade_base
+            fantasma.velocidade_y = 0
 
     def renderizar(self):
         self._tela_do_jogo.fill((0, 0, 0))
