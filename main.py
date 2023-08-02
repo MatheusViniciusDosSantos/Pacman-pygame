@@ -199,7 +199,7 @@ class App():
 
     def validar_obj_mudar_posica_fantasma(self, obj):
         if (obj.tipo == FANTASMA):
-            obj.gerar_novo_valor_aleatorio(self.tamanho_bloco_trilha, self.limiar, self.velocidade_base, self.matriz)
+            obj.verificar_continua_mesma_direcao(self.tamanho_bloco_trilha, self.limiar, self.velocidade_base, self.matriz)
 
     def mudar_posicao_pacman(self):
         celula_x = int(self.pacman.posicao_x / self.tamanho_bloco_trilha)

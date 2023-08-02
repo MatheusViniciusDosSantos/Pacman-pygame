@@ -14,6 +14,14 @@ class Fantasma(Objeto):
         self.tipo = FANTASMA
         self.cor = 0
         self.tempo_espera = 10
+        self.quantidade_casas_andar = 0
+
+    def verificar_continua_mesma_direcao(self, tamanho_bloco_trilha, limiar, velocidade_base, matriz):
+        if(self.quantidade_casas_andar == 0):
+            self.gerar_novo_valor_aleatorio(tamanho_bloco_trilha, limiar, velocidade_base, matriz)
+            self.quantidade_casas_andar = random.randint(1, 5)
+        else:
+            self.quantidade_casas_andar -= 1
 
     #TODO - BUG
     def gerar_novo_valor_aleatorio(self, tamanho_bloco_trilha, limiar, velocidade_base, matriz):
