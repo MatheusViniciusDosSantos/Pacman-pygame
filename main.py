@@ -2,6 +2,7 @@ import pygame
 from enum import Enum
 from direcao import direcao
 from pygame.locals import *
+from fruta import Fruta
 from pacman import Pacman
 from fantasma import *
 from constantes import *
@@ -50,6 +51,7 @@ class App():
         self.laranja = Fantasma()
         self.laranja.carregar_imagem('laranja.png', self.laranja.tamanho)
         self.laranja.cor = FANTASMA_LARANJA
+        self.fruta = [Fruta(), Fruta(), Fruta(), Fruta()]
 
         self.paredes = []
         self.trilha = []
@@ -87,6 +89,7 @@ class App():
     
     def carregar_fase(self):
         contador_fantasma = 0
+        contador_fruta = 0
         frameAtual = 0
         for i in range(len(self.matriz)):
             for j in range(len(self.matriz[0])):
@@ -109,6 +112,10 @@ class App():
                 if(self.matriz[i][j] == 2):
                     self.verifica_carregou_posicao_fantasma(x=j, y=i, contador_fantasma=contador_fantasma)
                     contador_fantasma += 1
+                
+                if(self.matriz[i][j] == FRUTA):
+                    self.verifica_carregou_posicao_fruta(x=j, y=i, contador_fruta=contador_fruta)
+                    contador_fruta += 1
     
     def verifica_carregou_posicao_fantasma(self, x, y, contador_fantasma):
         if(contador_fantasma == 0):
@@ -131,6 +138,27 @@ class App():
             self.rosa.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.rosa)
     
+    def verifica_carregou_posicao_fruta(self, x, y, contador_fruta):
+        if(contador_fruta == 0):
+            self.fruta[0].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.fruta[0].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.fruta[0])
+
+        elif(contador_fruta == 1):
+            self.fruta[1].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.fruta[1].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.fruta[1])
+
+        elif(contador_fruta == 2):
+            self.fruta[2].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.fruta[2].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.fruta[2])
+
+        elif(contador_fruta == 3):
+            self.fruta[3].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.fruta[3].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.fruta[3])
+
     def no_evento(self, event):
         if event.type == pygame.KEYDOWN:
             
@@ -196,6 +224,38 @@ class App():
             self.mudar_posicao_pacman()
             self.validar_obj_mudar_posica_fantasma(obj=obj)
             self.validar_posicoes(obj)
+        self.collision()
+    
+    def objectsInCollision(self, obj: Objeto, obj_2: Objeto):
+        return (abs((obj.posicao_x + self.tamanho_bloco_trilha/2.0) - (obj_2.posicao_x + self.tamanho_bloco_trilha/2.0)) < ((self.tamanho_bloco_trilha + self.tamanho_bloco_trilha) / 2.0) and abs((obj.posicao_y + self.tamanho_bloco_trilha/2.0) - (obj_2.posicao_y + self.tamanho_bloco_trilha/2.0)) < ((self.tamanho_bloco_trilha + self.tamanho_bloco_trilha) / 2.0))
+
+
+    def objectsCollided(self, obj: Objeto, obj_2: Objeto):
+        if (obj.tipo == FANTASMA and obj_2.tipo == PACMAN):
+            self.colisao_fantasma(pacman=obj_2)
+        elif (obj.tipo == PACMAN and obj_2.tipo == FANTASMA):
+            self.colisao_fantasma(pacman=obj)
+        elif (obj.tipo == FRUTA and obj_2.tipo == PACMAN):
+            self.colisao_fruta(fruta=obj)
+        elif (obj.tipo == PACMAN and obj_2.tipo == FRUTA):
+            self.colisao_fruta(fruta=obj_2)
+
+    def collision(self):
+        for i in range(0, len(self.lista_obj) - 1):
+            for j in range(i+1, len(self.lista_obj)):
+                if (self.objectsInCollision(self.lista_obj[j], self.lista_obj[i])):
+                    self.objectsCollided(self.lista_obj[j], self.lista_obj[i])
+                    break
+
+    def colisao_fantasma(self, pacman: Pacman):
+            pacman.ativo = False
+            self.lista_obj.remove(pacman)
+
+    def colisao_fruta(self, fruta: Fruta):
+
+        if (fruta.ativo == True):
+            fruta.carregar_imagem('fundo.png', fruta.tamanho)
+            fruta.ativo = False
 
     def validar_obj_mudar_posica_fantasma(self, obj):
         if (obj.tipo == FANTASMA):

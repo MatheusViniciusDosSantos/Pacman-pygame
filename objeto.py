@@ -14,6 +14,7 @@ class Objeto(Fisica, pygame.sprite.Sprite):
         self.velocidade_x: float = 0.0
         self.velocidade_y: float = 0.0
         self.foto: Surface
+        self.ativo: bool = True
         super().__init__()
     
     def carregar_imagem(self, nome, tamanho): 

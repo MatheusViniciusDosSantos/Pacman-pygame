@@ -3,6 +3,7 @@ from pacman import Pacman
 from fantasma import Fantasma
 from parede import Parede
 from trilha import Trilha
+from fruta import Fruta
 
 class Fase():
     
@@ -14,6 +15,7 @@ class Fase():
         self.fantasmas = {FANTASMA_AZUL: [], FANTASMA_ROSA: [], FANTASMA_ROSA: [], FANTASMA_LARANJA: []}
         self.paredes = []
         self.trilhas = []
+        self.fruta = Fruta()
 
         for linha in matriz:
             for coluna in linha:
@@ -28,6 +30,8 @@ class Fase():
                     self.trilhas.append([linha, coluna])
                 elif coluna == PAREDE:
                     self.paredes.append([linha, coluna])
+                elif coluna == FRUTA:
+                    self.fruta.posicao_atual = [linha, coluna]
         
-        return self.pacman, self.fantasmas, self.paredes, self.trilhas
+        return self.pacman, self.fantasmas, self.paredes, self.trilhas, self.fruta
                         
