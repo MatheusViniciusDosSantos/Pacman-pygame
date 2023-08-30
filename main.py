@@ -270,6 +270,7 @@ class App():
     def colisao_fantasma(self, pacman: Pacman):
             pacman.ativo = False
             self.lista_obj.remove(pacman)
+            exit()
 
     def colisao_fruta(self, fruta: Fruta):
 
