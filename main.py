@@ -54,7 +54,7 @@ class App():
         self.laranja.cor = FANTASMA_LARANJA
         self.fruta = [Fruta(), Fruta(), Fruta(), Fruta()]
         self.trilha = []
-        for i in range(172):
+        for i in range(174):
             self.trilha.append(Trilha())
 
         self.paredes = []
@@ -67,6 +67,8 @@ class App():
     
     def ao_iniciar(self):
         self._rodando_jogo = True
+        pygame.mixer.music.load('sons/intro.mp3')
+        pygame.mixer.music.play(-1)
     
     def ao_executar(self):
         self.carregar()
@@ -148,9 +150,9 @@ class App():
     
     def verifica_carregou_posicao_trilha(self, x, y, contador_trilha):
         if(contador_trilha):
-            self.trilha[contador_trilha - 2].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
-            self.trilha[contador_trilha - 2].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
-            self.adicionar_obj(self.trilha[contador_trilha -2])
+            self.trilha[contador_trilha ].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.trilha[contador_trilha ].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.trilha[contador_trilha ])
 
     def verifica_carregou_posicao_fruta(self, x, y, contador_fruta):
         if(contador_fruta == 0):
