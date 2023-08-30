@@ -8,6 +8,7 @@ from fantasma import *
 from constantes import *
 from fase import Fase
 from constantes import FANTASMA, FANTASMA_ROSA, FANTASMA_AZUL, FANTASMA_LARANJA, FANTASMA_VERMELHO, PAREDE
+from trilha import Trilha
 
 class App():
     def __init__(self):
@@ -52,9 +53,11 @@ class App():
         self.laranja.carregar_imagem('laranja.png', self.laranja.tamanho)
         self.laranja.cor = FANTASMA_LARANJA
         self.fruta = [Fruta(), Fruta(), Fruta(), Fruta()]
+        self.trilha = []
+        for i in range(172):
+            self.trilha.append(Trilha())
 
         self.paredes = []
-        self.trilha = []
         self.lista_obj = []
         
         self.fase_1 = Fase()
@@ -90,6 +93,7 @@ class App():
     def carregar_fase(self):
         contador_fantasma = 0
         contador_fruta = 0
+        contador_trilha = 0
         frameAtual = 0
         for i in range(len(self.matriz)):
             for j in range(len(self.matriz[0])):
@@ -116,6 +120,10 @@ class App():
                 if(self.matriz[i][j] == FRUTA):
                     self.verifica_carregou_posicao_fruta(x=j, y=i, contador_fruta=contador_fruta)
                     contador_fruta += 1
+
+                if(self.matriz[i][j] == TRILHA):
+                    self.verifica_carregou_posicao_trilha(x=j, y=i, contador_trilha=contador_trilha)
+                    contador_trilha += 1
     
     def verifica_carregou_posicao_fantasma(self, x, y, contador_fantasma):
         if(contador_fantasma == 0):
@@ -138,6 +146,12 @@ class App():
             self.rosa.posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
             self.adicionar_obj(self.rosa)
     
+    def verifica_carregou_posicao_trilha(self, x, y, contador_trilha):
+        if(contador_trilha):
+            self.trilha[contador_trilha - 2].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.trilha[contador_trilha - 2].posicao_y = y*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
+            self.adicionar_obj(self.trilha[contador_trilha -2])
+
     def verifica_carregou_posicao_fruta(self, x, y, contador_fruta):
         if(contador_fruta == 0):
             self.fruta[0].posicao_x = x*self.tamanho_bloco_trilha + self.tamanho_bloco_trilha/2
@@ -239,6 +253,10 @@ class App():
             self.colisao_fruta(fruta=obj)
         elif (obj.tipo == PACMAN and obj_2.tipo == FRUTA):
             self.colisao_fruta(fruta=obj_2)
+        elif (obj.tipo == TRILHA and obj_2.tipo == PACMAN):
+            self.colisao_trilha(trilha=obj)
+        elif (obj.tipo == PACMAN and obj_2.tipo == TRILHA):
+            self.colisao_trilha(trilha=obj_2)
 
     def collision(self):
         for i in range(0, len(self.lista_obj) - 1):
@@ -256,6 +274,12 @@ class App():
         if (fruta.ativo == True):
             fruta.carregar_imagem('fundo.png', fruta.tamanho)
             fruta.ativo = False
+
+    def colisao_trilha(self, trilha: Trilha):
+
+        if (trilha.ativo == True):
+            trilha.carregar_imagem('fundo.png', trilha.tamanho)
+            trilha.ativo = False
 
     def validar_obj_mudar_posica_fantasma(self, obj):
         if (obj.tipo == FANTASMA):
